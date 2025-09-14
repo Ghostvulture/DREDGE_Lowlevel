@@ -1,5 +1,4 @@
 from maix import uart, image, camera, display, pinmap
-from maix.image import ApriltagFamilies
  
 devices = uart.list_devices()
  
@@ -7,20 +6,20 @@ serial = uart.UART(devices[0], 115200)
  
 pinmap.set_pin_function("A17", "UART1_RX")
 pinmap.set_pin_function("A16", "UART1_TX")
- 
-device = "/dev/ttyS0"
- 
-serial1 = uart.UART(device, 115200)
-
-yellow_threshold = [[0,100,-128,127,29,127]]
-
-# === AprilTag 配置 ===
-families = ApriltagFamilies.TAG36H11
-
-cam = camera.Camera(224,224)
-disp = display.Display()
 
 class CMD_Packet:
+    """CMD Packet Structure for UART Transmission
+    Attributes:
+        header (int): Packet header, fixed value 0xA5
+        Vx (int): Linear velocity in x direction
+        Vy (int): Linear velocity in y direction
+        Vw (int): Angular velocity
+        motorsPos (list of int): List of motor positions (0-5 motors)
+    Notes:
+        - Vx, Vy, Vw are floats in range [-3, 3],
+        - motorsPos is a list of angles in degrees [0, 180]
+        - User should use this class to set values and transmit via UART
+    """
     def __init__(self):
         self.header = 0xA5
         self._Vx = 0
@@ -83,32 +82,32 @@ class CMD_Packet:
         self._motorsPos += [0] * (6 - len(self._motorsPos))
 
 class Timer():
-    #定时器类
+    """Timer class for managing time-based events.
+    Attributes:
+        count (int): Current timer count.
+        count_max (int): Maximum count before timer resets.
+        count_flag (int): Flag indicating if timer has completed (0: running, 1: completed).
+        step (function): Method to increment the timer count.
+    """
     def __init__(self) -> None:
-        #计时数
         self.count = 0
-        #计时数上限
         self.count_max = 0
-        #计时完成标识
         self.count_flag = 0
  
-timer0 = Timer()
-count = 0
-timer0.count_max = 10
 
-def TimerStart(Timer):
-    global count
-    if Timer.count < Timer.count_max:
-        #计时开始，计时器标识位置0
-        Timer.count_flag = 0
-        Timer.count += 1
-        count = Timer.count
-    
-    else:
-        #计时完成，计时器标识位置1
-        Timer.count_flag = 1
-        Timer.count = 0
-        count = Timer.count
+    def step(self):
+        global count
+        if self.count < self.count_max:
+            # counting, timer flag set 0
+            self.count_flag = 0
+            self.count += 1
+            count = self.count
+        
+        else:
+            # counting completed, timer flag set 1
+            self.count_flag = 1
+            self.count = 0
+            count = self.count
  
 crc16_table = [
     0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf, 0x8c48, 0x9dc1, 0xaf5a, 0xbed3,
@@ -135,18 +134,27 @@ crc16_table = [
     0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 ]
 
-
-
-
 def crc16_ibm(data: bytes) -> int:
+    """Compute CRC-16-IBM checksum for given data.
+    Args:
+        data (bytes): Input data to compute checksum for.
+    Returns:
+        int: Computed CRC-16-IBM checksum.
+    """
     crc = 0xFFFF
     for byte in data:
         crc = (crc >> 8) ^ crc16_table[(crc ^ byte) & 0xFF]
     print(hex(crc))
     return crc
 
-#串口发送函数
+
 def DataTransimit(CMDData, serial):
+    """
+    Transmit command data over serial.
+    Args:
+        CMDData (CMD_Packet): Command packet instance containing data to transmit.
+        serial (uart.UART): UART instance for transmission.
+    """
     data = ()
     if CMDData.header == 0xA5:
         raw_data = bytes([
@@ -161,67 +169,27 @@ def DataTransimit(CMDData, serial):
         crc_high = (crc >> 8) & 0xFF
         # print(hex(crc_low), hex(crc_high))
 
-        full_data = raw_data + bytes([crc_low, crc_high])  # 低字节先发
+        full_data = raw_data + bytes([crc_low, crc_high])
 
         serial.write(full_data)
-
-close_the_paw = 0 #是否合上夹爪
-TASK_NUM = 1
-
-def find_yellow_shabao(img):
-    global close_the_paw
-    blobs = img.find_blobs(yellow_threshold, area_threshold = 1500,x_stride = 10, y_stride = 10)
-    if blobs:
-        for blob in blobs:
-            img.draw_rect(blob[0], blob[1], blob[2], blob[3], image.COLOR_GREEN)
-            print(blob[2]*blob[3])
-        close_the_paw = 1
-    else:
-        close_the_paw = 0
-
-def find_apriltags(img):
-    apriltags = img.find_apriltags(families=families)
-    for tag in apriltags:
-        corners = tag.corners()
-        for i in range(4):
-            img.draw_line(corners[i][0], corners[i][1], corners[(i + 1) % 4][0], corners[(i + 1) % 4][1], image.Color.from_rgb(0, 255, 0), 2)
-        img.draw_string(tag.cx(), tag.cy(), f"id:{tag.id()}", image.Color.from_rgb(0, 255, 0), 1)
-
-        tag_id = tag.id()
-        cx, cy = tag.cx(), tag.cy()
-        print(f"AprilTag ID: {tag_id}, center: ({cx}, {cy})")
-        return tag_id
-
  
-#c初始化
+"""
+Example usage: Users can refer to following lines for implementation.
+"""
 CMD = CMD_Packet()
-CMD.Vx = 0.0      # 合法，自动映射成对应的 0~255 之间整数
+CMD.Vx = 0.0
 CMD.Vy = 0.0
 CMD.Vw = 0
-CMD.motorsPos = [45, 90, 90, 90, 90, 90]  # 角度范围检测和映射
+CMD.motorsPos = [45, 90, 90, 90, 90, 90]
 
 print(CMD.Vx, CMD.Vy, CMD.Vw)
 print(CMD.motorsPos)
 
+timer0 = Timer()
 
 while True:
-    img = cam.read()
-    
-    if(TASK_NUM == 1):
-        CMD.Vx = 1.0
-        find_yellow_shabao(img)
-        if(close_the_paw == 1):
-            CMD.motorsPos = [90, 90, 90, 90, 90, 90]
-            TASK_NUM = 2
-        else:
-            CMD.motorsPos = [45, 90, 90, 90, 90, 90]
-    if(TASK_NUM == 2):
-        tag_id = find_apriltags(img)
-        if(tag_id == 278):
-            CMD.Vx = 0.0
-            CMD.motorsPos = [45, 90, 90, 90, 90, 90]
-    disp.show(img)
-    TimerStart(timer0)
+
+    timer0.step()
     # print(count)
     if timer0.count_flag == 1:
         DataTransimit(CMD, serial)
