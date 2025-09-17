@@ -177,7 +177,17 @@ void ChassisController::HandleInput()
 
     //设置舵机角度
     float M1 = (MaixComm::Instance()->MaixCommRx.data.M1/255.0f)*180; //将角度转换为0~180°之间
+    float M2 = (MaixComm::Instance()->MaixCommRx.data.M2/255.0f)*180;
+    float M3 = (MaixComm::Instance()->MaixCommRx.data.M3/255.0f)*180;
+    float M4 = (MaixComm::Instance()->MaixCommRx.data.M4/255.0f)*180;
+    float M5 = (MaixComm::Instance()->MaixCommRx.data.M5/255.0f)*180;
+    float M6 = (MaixComm::Instance()->MaixCommRx.data.M6/255.0f)*180;
     SteeringGear::Instance()->SetAngle(M1, 1);
+    SteeringGear::Instance()->SetAngle(M2, 2);
+    SteeringGear::Instance()->SetAngle(M3, 3);
+    SteeringGear::Instance()->SetAngle(M4, 4);
+    SteeringGear::Instance()->SetAngle(M5, 5);
+    SteeringGear::Instance()->SetAngle(M6, 6);
 }
 
 void ChassisController::Kinematic_Inverse_Resolution(M2006 *motors[])
