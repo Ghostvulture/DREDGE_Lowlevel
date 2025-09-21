@@ -1,4 +1,5 @@
 #include "MaixComm.hpp"
+#include "bsp_dwt.hpp"
 
 void MaixComm::Init()
 {
@@ -15,5 +16,9 @@ void MaixComm::Update()
 	else
 	{
 			memcpy(&MaixCommRx.data, PrevReceivedData, MAIX_COMM_SIZE);
+	}
+	
+	if ((int)DWT_GetTimeline_ms() % 100 == 0){
+		memset(PrevReceivedData, 128 ,sizeof(PrevReceivedData));
 	}
 }

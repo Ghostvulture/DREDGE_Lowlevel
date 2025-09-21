@@ -1,6 +1,7 @@
 #include "bsp_usart.hpp"
 #include "stm32f4xx_it.h"
 #include "MaixComm.hpp"
+#include "ChassisController.hpp"
 /*------------全局变量------------*/
 extern UART_HandleTypeDef huart6;
 extern DMA_HandleTypeDef hdma_usart6_rx;
@@ -55,6 +56,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   if (huart->Instance == USART6)
   {
     memcpy(MaixComm::Instance()->MaixCommRx.buffer, UART6RxBuffer, MAIX_COMM_SIZE); // 将接收到的数据放入队列中
+		ChassisController::Instance()->uart_received = true;
     HAL_UART_Receive_IT(&huart6, UART6RxBuffer, MAIX_COMM_SIZE); // 重新开启接收中断
   }
 }

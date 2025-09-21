@@ -59,6 +59,8 @@ public:
     const float distanceToLeftSide = 1.0f;  ///< 中心到左侧距离
     const float wheelRadius = 0.15f;        ///< 轮子半径
     const float wheel_resistance_threshold_speed = 1.0f;
+		
+		bool uart_received = false;
 
     PID M2006SpeedPid; ///< 速度环PID
     PID VxPid;

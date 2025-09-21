@@ -159,9 +159,17 @@ void ChassisController::HandleInput()
 {
 		static uint8_t test = 0.0f;
 		test += 1;
-    Vx = (MaixComm::Instance()->MaixCommRx.data.Vx/255.0f)*6 - 3.0f; // 将速度转换为 m/s
-    Vy = (MaixComm::Instance()->MaixCommRx.data.Vy/255.0f)*6 - 3.0f; // 将速度转换为 m/s
-    Vw = (MaixComm::Instance()->MaixCommRx.data.Vw/255.0f)*6 - 3.0f; // 将速度转换为 rad/s
+		if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || uart_received == false){
+			Vx = 0;
+			Vy = 0;
+			Vw = 0;
+		}
+		else{
+			Vx = (MaixComm::Instance()->MaixCommRx.data.Vx/255.0f)*6 - 3.0f; // 将速度转换为 m/s
+			Vy = (MaixComm::Instance()->MaixCommRx.data.Vy/255.0f)*6 - 3.0f; // 将速度转换为 m/s
+			Vw = (MaixComm::Instance()->MaixCommRx.data.Vw/255.0f)*6 - 3.0f; // 将速度转换为 rad/s
+		}
+    
 
     if (isnan(Vx) || isnan(Vy) || isnan(Vw)) // 如果出现nan错误，将速度设定值设为0
     {
@@ -188,6 +196,8 @@ void ChassisController::HandleInput()
     SteeringGear::Instance()->SetAngle(M4, 4);
     SteeringGear::Instance()->SetAngle(M5, 5);
     SteeringGear::Instance()->SetAngle(M6, 6);
+		
+		uart_received = false;
 }
 
 void ChassisController::Kinematic_Inverse_Resolution(M2006 *motors[])

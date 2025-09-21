@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp.hpp"
+#include "bsp_dwt.hpp"
 
 #include "DJIMotorHandler.hpp"
 #include "ChassisController.hpp"
@@ -63,6 +64,7 @@ DJIMotorHandler *DJImotorHandler = DJIMotorHandler::Instance();
 ChassisController *chassisController = ChassisController::Instance();
 MaixComm *maixcomm = MaixComm::Instance();
 SteeringGear *steeringgear = SteeringGear::Instance();
+extern uint8_t UART6RxBuffer[12];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,6 +113,8 @@ void SysTick_Handler(void)
 //  steeringgear->SetAngle(40,3);
   // send data
   DJImotorHandler->sendControlData();
+//	if ((int)DWT_GetTimeline_s() % 1 == 0)
+//		memset(UART6RxBuffer, 0, sizeof(UART6RxBuffer));
 
   /* USER CODE END SysTick_IRQn 1 */
 }
