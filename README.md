@@ -47,6 +47,10 @@
 ## Usage
  API应当有详细的用法注释， 如果对API的使用有疑问、发现其中存在bug或开发过程中出现无法解决错误，欢迎提交issue并向组委会反馈。
 
+ > [!NOTE]
+ > 1. 接线和使用规范请查看[物资使用规范](https://zanpw3z2hb6.feishu.cn/wiki/ASwQwNbtJinhljkgD8dcEpecn7d?from=from_copylink)，现在挺多电机动不起来都是线接错了
+ > 2. 如果接线正确、程序正确，上电后电机无反应，请手动按一下C板**RST**键
+
  软件答疑(Tutorials)时间为
  - 周一、三 20:00-22:00
  - 周六、日 15:00-17:00
