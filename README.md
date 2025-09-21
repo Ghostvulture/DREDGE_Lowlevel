@@ -8,64 +8,21 @@
 - MaixCam双板串口通信程序API，参赛队伍需要自主实现底盘移动速度Vx,Vy,Vw以及舵机角度的计算，再使用该API发送给下板，从而驱动轮子、舵机转动。
 
 大致的程序实现架构如图
-<center><img src="Doc/pic1.png"></center>
+<center><img src="Pics/pic.png"></center>
 
 ## Structure
-本仓库大致结构如下，其中较为重要的文件在下方有标注，供各个队伍对提供的代码架构有一个较为清晰的认识，并能够较快的上手开发人物。
+本仓库大致结构如下，其中较为重要的文件在下方有标注，供各个队伍对提供的代码架构有一个较为清晰的认识，并能够较快的上手开发任务。
 
 ```
 ├── C-Board // 底层控制板程序文件夹
-│   ├── Chassis.ioc
-│   ├── Core
-│   │   ├── Inc
-│   │   │   ├── main.h
-│   │   │   ├── stm32f4xx_hal_conf.h
-│   │   │   └── stm32f4xx_it.h
-│   │   ├── Src
-│   │   │   ├── main.cpp // 主程序
-│   │   │   ├── stm32f4xx_hal_msp.c
-│   │   │   ├── stm32f4xx_it.c
-│   │   │   ├── syscalls.c
-│   │   │   ├── sysmem.c
-│   │   │   └── system_stm32f4xx.c
-│   │   └── Startup
-│   │       └── startup_stm32f407ighx.s
-│   ├── Drivers
-│   │   ├── CMSIS
-│   │   └── STM32F4xx_HAL_Driver
-│   ├── MDK-ARM // keil生成可运行项目
-│   │   ├── Chassis
-│   │   ├── Chassis.uvguix.Lenovo
-│   │   ├── Chassis.uvguix.LUO
-│   │   ├── Chassis.uvoptx
-│   │   ├── Chassis.uvprojx
-│   ├── Middlewares
-│   └── Src // 主要架构
-│       ├── BSP
-│       │   ├── bsp.cpp
-│       │   ├── bsp.hpp
-│       │   ├── bsp.md
-│       │   ├── can
-│       │   ├── dwt
-│       │   ├── gpio
-│       │   ├── tim
-│       │   └── usart
-│       ├── ChassisController
-│       ├── Entity
-│       │   ├── DJIMotor
-│       │   ├── entity.md
-│       │   ├── LED
-│       │   ├── MaixComm
-│       │   └── SteeringGear
-│       ├── Lib
-│       └── Utility
-├── doc
-│   └── pic1.png
-├── MaixPrograms // API
-|   ├── apriltagmap.py
-│   └── uarttransmit.py
+├── Pics
+├── MaixCam // 示例主程序与API
+|   ├── dredge
+│   └── main.py
 └── README.md
 ```
+> [!NOTE]
+> 请在`main.py`下完成主程序的撰写，调用所有模块，并使用MaixVision左下角的`Run Project`，才能保证运行成功。
 ## Protocal
 底层控制器的设计中，采用串口与MaixCam控制板进行通信，遵循以下通讯协议。对小车的控制只需将MaixCam与底层控制板串口连接即可。
 - 波特率：115200
@@ -79,11 +36,11 @@
     - 如果校验不通过，信息不会被接收
 
  ## API
- 如果你不想进行底层调试，请只关注 `MaixAPI`，CBoard中涉及的嵌入式开发知识不要求掌握。请使用培训时介绍的Maix开发平台MaixVision进行python程序编写并直接下载到MaixCam开发板进行调试。
+ 如果你不想进行底层调试，请只关注 `dredge`，CBoard中涉及的嵌入式开发知识不要求掌握。请使用培训时介绍的Maix开发平台MaixVision进行python程序编写并直接下载到MaixCam开发板进行调试。
 
- 请将 `MaixAPI` 文件夹放到你的开发文件夹下，使用 `import` 相关方式直接导入该API、API中的函数或变量，设置你的底层控制指令，如
+ 请将 `dredge` 文件夹放到你的开发文件夹下，使用 `import` 相关方式直接导入该API、API中的函数或变量，设置你的底层控制指令，如
  ```python
- from MaixAPI.apriltagmap import map
+ from dredge.apriltagmap import map
  ```
  以获得AprilTag对应坐标的字典
 

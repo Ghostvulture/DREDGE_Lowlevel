@@ -80,34 +80,6 @@ class CMD_Packet:
                 raise ValueError(f"motorsPos[{i}] 必须在 0~180 度之间")
         self._motorsPos = [int(round(v / 180 * 255)) for v in values]
         self._motorsPos += [0] * (6 - len(self._motorsPos))
-
-class Timer():
-    """Timer class for managing time-based events.
-    Attributes:
-        count (int): Current timer count.
-        count_max (int): Maximum count before timer resets.
-        count_flag (int): Flag indicating if timer has completed (0: running, 1: completed).
-        step (function): Method to increment the timer count.
-    """
-    def __init__(self) -> None:
-        self.count = 0
-        self.count_max = 0
-        self.count_flag = 0
- 
-
-    def step(self):
-        global count
-        if self.count < self.count_max:
-            # counting, timer flag set 0
-            self.count_flag = 0
-            self.count += 1
-            count = self.count
-        
-        else:
-            # counting completed, timer flag set 1
-            self.count_flag = 1
-            self.count = 0
-            count = self.count
  
 crc16_table = [
     0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf, 0x8c48, 0x9dc1, 0xaf5a, 0xbed3,
@@ -144,11 +116,11 @@ def crc16_ibm(data: bytes) -> int:
     crc = 0xFFFF
     for byte in data:
         crc = (crc >> 8) ^ crc16_table[(crc ^ byte) & 0xFF]
-    print(hex(crc))
+    # print(hex(crc))
     return crc
 
 
-def DataTransimit(CMDData, serial):
+def DataTransimit(CMDData, serial=serial):
     """
     Transmit command data over serial.
     Args:
@@ -173,24 +145,4 @@ def DataTransimit(CMDData, serial):
 
         serial.write(full_data)
  
-"""
-Example usage: Users can refer to following lines for implementation.
-"""
-CMD = CMD_Packet()
-CMD.Vx = 0.0
-CMD.Vy = 0.0
-CMD.Vw = 0
-CMD.motorsPos = [45, 90, 90, 90, 90, 90]
 
-print(CMD.Vx, CMD.Vy, CMD.Vw)
-print(CMD.motorsPos)
-
-timer0 = Timer()
-
-while True:
-
-    timer0.step()
-    # print(count)
-    if timer0.count_flag == 1:
-        DataTransimit(CMD, serial)
-        # print(CMD.Vx, CMD.Vy, CMD.Vw)
