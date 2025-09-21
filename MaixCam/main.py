@@ -1,6 +1,6 @@
 from maix import time
-from MaixAPI.apriltagmap import AprilTagConfig
-from MaixAPI.uarttransmit import CMD_Packet, DataTransimit
+from dredge.apriltagmap import AprilTagConfig
+from dredge.uarttransmit import CMD_Packet, DataTransimit
 
 """
 Example usage: Users can refer to following lines for implementation.
