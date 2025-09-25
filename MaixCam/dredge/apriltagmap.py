@@ -1,6 +1,6 @@
 from maix.image import ApriltagFamilies
 
-def generate_map_dict(rows=15, cols=20):
+def generate_map_dict(rows=20, cols=15):
     """generate a map dictionary for AprilTag IDs to coordinates
     Args:
         rows (int): number of rows in the map
@@ -9,7 +9,7 @@ def generate_map_dict(rows=15, cols=20):
         dict: mapping of AprilTag IDs to (row, col) coordinates
     """
     mapping = {}
-    num = 1
+    num = 0
     for row in range(1, rows + 1):
         for col in range(1, cols + 1):
             mapping[num] = (row, col)
