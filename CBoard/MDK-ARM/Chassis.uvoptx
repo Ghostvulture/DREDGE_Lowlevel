@@ -185,6 +185,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>UART6TxBuffer</ItemText>
         </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>maixcomm</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

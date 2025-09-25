@@ -2,6 +2,7 @@
 #include "SteeringGear.hpp"
 #include "MaixComm.hpp"
 #include "bsp_usart.hpp"
+#include "bsp_dwt.hpp"
 
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
@@ -154,11 +155,11 @@ void ChassisController::Run()
     debug_lr_spd_set = L_Rear.speedPid.ref;
     debug_lr_spd_fdb = L_Rear.speedPid.fdb;
 }
-
+static uint32_t transmit_count = 0;
 void ChassisController::HandleInput()
 {
-		static uint8_t test = 0.0f;
-		test += 1;
+		transmit_count += 1;
+		
 		if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || uart_received == false){
 			Vx = 0;
 			Vy = 0;
@@ -178,7 +179,7 @@ void ChassisController::HandleInput()
         Vw = 0;
     }
 
-    // 一阶卡尔曼滤波
+//    // 一阶卡尔曼滤波
     Vx = VxFilter.Update(Vx);
     Vy = VyFilter.Update(Vy);
     Vw = VwFilter.Update(Vw);
@@ -196,8 +197,11 @@ void ChassisController::HandleInput()
     SteeringGear::Instance()->SetAngle(M4, 4);
     SteeringGear::Instance()->SetAngle(M5, 5);
     SteeringGear::Instance()->SetAngle(M6, 6);
-		
-		uart_received = false;
+
+    if (transmit_count % 500 == 0){
+        uart_received = false;
+    }
+	
 }
 
 void ChassisController::Kinematic_Inverse_Resolution(M2006 *motors[])

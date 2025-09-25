@@ -63,4 +63,5 @@ chassis/chassiscontroller.o: \
   ..\Src\ChassisController\State.hpp ..\Src\Utility\KalmanFilter.hpp \
   ..\Src\Utility\Pid.hpp ..\Src\Entity\SteeringGear\SteeringGear.hpp \
   ..\Src\BSP\tim\bsp_tim.hpp ..\Src\Entity\MaixComm\MaixComm.hpp \
-  ..\Src\BSP\usart\bsp_usart.hpp ..\Src\Utility\crc.hpp
+  ..\Src\BSP\usart\bsp_usart.hpp ..\Src\Utility\crc.hpp \
+  ..\Src\BSP\dwt\bsp_dwt.hpp
