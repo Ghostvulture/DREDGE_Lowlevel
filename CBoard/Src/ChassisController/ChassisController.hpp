@@ -57,10 +57,11 @@ public:
     const float distanceToRearAxle = 1.0f;  ///< 中心到后轴距离
     const float distanceToRightSide = 1.0f; ///< 中心到右侧距离
     const float distanceToLeftSide = 1.0f;  ///< 中心到左侧距离
-    const float wheelRadius = 0.15f;        ///< 轮子半径
+    const float wheelRadius = 0.036f;        ///< 轮子半径
     const float wheel_resistance_threshold_speed = 1.0f;
 		
 		bool uart_received = false;
+    uint8_t idle_count = 0;
 
     PID M2006SpeedPid; ///< 速度环PID
     PID VxPid;
@@ -68,6 +69,8 @@ public:
     PID VwPid;
     PID RRPid;
     PID LFPid;
+    PID RFPid;
+    PID LRPid;
 
     KalmanFilter VxFilter; ///< 横向速度滤波器
     KalmanFilter VyFilter; ///< 纵向速度滤波器
@@ -86,16 +89,8 @@ public:
      * @brief 构造函数，将位于controller的四个底盘电机指针传入
      */
     void HandleInput() override;
-    /**
-     * @brief 功率限制函数，用于限制底盘功率
-     */
-    void GetVelocity();
-
-    void Kinematic_Resolution(M2006* motors[]);
 
     void Kinematic_Inverse_Resolution(M2006* motors[]);
-
-    void Dynamic_Inverse_Resolution(M2006* motors[]);
 
     ChassisController() {};
     ~ChassisController() {};
