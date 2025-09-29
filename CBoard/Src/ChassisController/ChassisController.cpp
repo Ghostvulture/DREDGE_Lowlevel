@@ -46,43 +46,29 @@ void ChassisController::Init()
     RR_speedSet = 0;
     LR_speedSet = 0;
 
-    uart_received = false;
-    idle_count = 0;
     /*----------------------------PID参数----------------------------*/
     M2006SpeedPid.kp = 200.0f;
     M2006SpeedPid.ki = 0.0f;
     M2006SpeedPid.kd = 10.0f;
-    M2006SpeedPid.maxOut = 10000;
+    M2006SpeedPid.maxOut = 25000;
     M2006SpeedPid.maxIOut = 0;
 
     RRPid.kp = 200.0f;
     RRPid.ki = 0.0f;
     RRPid.kd = 1.0f;
-    RRPid.maxOut = 10000;
+    RRPid.maxOut = 25000;
     RRPid.maxIOut = 0;
-    
-    LRPid.kp = 200.0f;
-    LRPid.ki = 0.0f;
-    LRPid.kd = 1.0f;
-    LRPid.maxOut = 10000;
-    LRPid.maxIOut = 0;
-    
-    RFPid.kp = 200.0f;
-    RFPid.ki = 0.0f;
-    RFPid.kd = 1.0f;
-    RFPid.maxOut = 10000;
-    RFPid.maxIOut = 0;
 
-    LFPid.kp = 200.0f;
-    LFPid.ki = 0.0f;
-    LFPid.kd = 1.0f;
-    LFPid.maxOut = 10000;
+    LFPid.kp = 522.0f;
+    LFPid.ki = 2.0f;
+    LFPid.kd = 0.0f;
+    LFPid.maxOut = 25000;
     LFPid.maxIOut = 0;
 
     /*----------------------------右前轮----------------------------*/
     R_Front.controlMode = DJIMotor::SPD_MODE;
-    R_Front.gearBox = GearBox::GearBox_M2006;
-    R_Front.speedPid = RFPid;
+    R_Front.gearBox = GearBox::GearBox_XRoll;
+    R_Front.speedPid = M2006SpeedPid;
     R_Front.positionSet = R_Front.motorFeedback.positionFdb;
     R_Front.positionPid.Clear();
     R_Front.speedPid.Clear();
@@ -90,7 +76,7 @@ void ChassisController::Init()
     R_Front.currentSet = 0;
     /*----------------------------左前轮----------------------------*/
     L_Front.controlMode = DJIMotor::SPD_MODE;
-    L_Front.gearBox = GearBox::GearBox_M2006;
+    L_Front.gearBox = GearBox::GearBox_XRoll;
     L_Front.speedPid = LFPid;
     L_Front.positionSet = L_Front.motorFeedback.positionFdb;
     L_Front.positionPid.Clear();
@@ -99,8 +85,8 @@ void ChassisController::Init()
     L_Front.currentSet = 0;
     /*----------------------------右后轮----------------------------*/
     R_Rear.controlMode = DJIMotor::SPD_MODE;
-    R_Rear.gearBox = GearBox::GearBox_M2006;
-    R_Rear.speedPid = RRPid;
+    R_Rear.gearBox = GearBox::GearBox_XRoll;
+    R_Rear.speedPid = M2006SpeedPid;
     R_Rear.positionSet = R_Rear.motorFeedback.positionFdb;
     R_Rear.positionPid.Clear();
     R_Rear.speedPid.Clear();
@@ -108,8 +94,8 @@ void ChassisController::Init()
     R_Rear.currentSet = 0;
     /*----------------------------左后轮----------------------------*/
     L_Rear.controlMode = DJIMotor::SPD_MODE;
-    L_Rear.gearBox = GearBox::GearBox_M2006;
-    L_Rear.speedPid = LRPid;
+    L_Rear.gearBox = GearBox::GearBox_XRoll;
+    L_Rear.speedPid = M2006SpeedPid;
     L_Rear.positionSet = L_Rear.motorFeedback.positionFdb;
     L_Rear.positionPid.Clear();
     L_Rear.speedPid.Clear();
@@ -169,25 +155,23 @@ void ChassisController::Run()
     debug_lr_spd_set = L_Rear.speedPid.ref;
     debug_lr_spd_fdb = L_Rear.speedPid.fdb;
 }
-
+static uint32_t transmit_count = 0;
+static uint32_t err_count = 0;
 void ChassisController::HandleInput()
 {
-    if (uart_received == true){
-        idle_count = 0;
-        uart_received = false;
-    }
-    else if(idle_count < 100) idle_count ++;
+		transmit_count += 1;
+		
+		if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || err_count >= 10){
+			Vx = 0;
+			Vy = 0;
+			Vw = 0;
+		}
+		else{
+			Vx = (MaixComm::Instance()->MaixCommRx.data.Vx/255.0f)*6 - 3.0f; // 将速度转换为 m/s
+			Vy = (MaixComm::Instance()->MaixCommRx.data.Vy/255.0f)*6 - 3.0f; // 将速度转换为 m/s
+			Vw = (MaixComm::Instance()->MaixCommRx.data.Vw/255.0f)*6 - 3.0f; // 将速度转换为 rad/s
+		}
     
-    if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || idle_count >= 100){
-        Vx = 0;
-        Vy = 0;
-        Vw = 0;
-    }
-    else{
-        Vx = (MaixComm::Instance()->MaixCommRx.data.Vx/255.0f)*6 - 3.0f; // 将速度转换为 m/s
-        Vy = (MaixComm::Instance()->MaixCommRx.data.Vy/255.0f)*6 - 3.0f; // 将速度转换为 m/s
-        Vw = (MaixComm::Instance()->MaixCommRx.data.Vw/255.0f)*6 - 3.0f; // 将速度转换为 rad/s
-    }
 
     if (isnan(Vx) || isnan(Vy) || isnan(Vw)) // 如果出现nan错误，将速度设定值设为0
     {
@@ -196,7 +180,7 @@ void ChassisController::HandleInput()
         Vw = 0;
     }
 
-    // 一阶卡尔曼滤波
+//    // 一阶卡尔曼滤波
     Vx = VxFilter.Update(Vx);
     Vy = VyFilter.Update(Vy);
     Vw = VwFilter.Update(Vw);
@@ -214,6 +198,18 @@ void ChassisController::HandleInput()
     SteeringGear::Instance()->SetAngle(M4, 4);
     SteeringGear::Instance()->SetAngle(M5, 5);
     SteeringGear::Instance()->SetAngle(M6, 6);
+
+    if (transmit_count % 500 == 0){
+        uart_received = false;
+    }
+
+    if (!uart_received){
+        err_count ++;
+    }
+	else
+    {
+        err_count = 0;
+    }
 }
 
 void ChassisController::Kinematic_Inverse_Resolution(M2006 *motors[])
