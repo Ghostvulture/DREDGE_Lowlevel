@@ -53,21 +53,9 @@ void ChassisController::Init()
     M2006SpeedPid.maxOut = 25000;
     M2006SpeedPid.maxIOut = 0;
 
-    RRPid.kp = 200.0f;
-    RRPid.ki = 0.0f;
-    RRPid.kd = 1.0f;
-    RRPid.maxOut = 25000;
-    RRPid.maxIOut = 0;
-
-    LFPid.kp = 522.0f;
-    LFPid.ki = 2.0f;
-    LFPid.kd = 0.0f;
-    LFPid.maxOut = 25000;
-    LFPid.maxIOut = 0;
-
     /*----------------------------右前轮----------------------------*/
     R_Front.controlMode = DJIMotor::SPD_MODE;
-    R_Front.gearBox = GearBox::GearBox_XRoll;
+    R_Front.gearBox = GearBox::GearBox_M2006;
     R_Front.speedPid = M2006SpeedPid;
     R_Front.positionSet = R_Front.motorFeedback.positionFdb;
     R_Front.positionPid.Clear();
@@ -76,8 +64,8 @@ void ChassisController::Init()
     R_Front.currentSet = 0;
     /*----------------------------左前轮----------------------------*/
     L_Front.controlMode = DJIMotor::SPD_MODE;
-    L_Front.gearBox = GearBox::GearBox_XRoll;
-    L_Front.speedPid = LFPid;
+    L_Front.gearBox = GearBox::GearBox_M2006;
+    L_Front.speedPid = M2006SpeedPid;
     L_Front.positionSet = L_Front.motorFeedback.positionFdb;
     L_Front.positionPid.Clear();
     L_Front.speedPid.Clear();
@@ -85,7 +73,7 @@ void ChassisController::Init()
     L_Front.currentSet = 0;
     /*----------------------------右后轮----------------------------*/
     R_Rear.controlMode = DJIMotor::SPD_MODE;
-    R_Rear.gearBox = GearBox::GearBox_XRoll;
+    R_Rear.gearBox = GearBox::GearBox_M2006;
     R_Rear.speedPid = M2006SpeedPid;
     R_Rear.positionSet = R_Rear.motorFeedback.positionFdb;
     R_Rear.positionPid.Clear();
@@ -94,7 +82,7 @@ void ChassisController::Init()
     R_Rear.currentSet = 0;
     /*----------------------------左后轮----------------------------*/
     L_Rear.controlMode = DJIMotor::SPD_MODE;
-    L_Rear.gearBox = GearBox::GearBox_XRoll;
+    L_Rear.gearBox = GearBox::GearBox_M2006;
     L_Rear.speedPid = M2006SpeedPid;
     L_Rear.positionSet = L_Rear.motorFeedback.positionFdb;
     L_Rear.positionPid.Clear();
@@ -110,35 +98,6 @@ void ChassisController::Init()
 
     /*---------------------------初始化舵机---------------------------*/
     SteeringGear::Instance()->Init();
-    
-    VxFilter.Clear();
-    VyFilter.Clear();
-    VwFilter.Clear();
-
-    VxFilter.SetQ(K_Q);
-    VyFilter.SetQ(K_Q);
-    VwFilter.SetQ(K_Q);
-    VxFilter.SetR(K_R);
-    VyFilter.SetR(K_R);
-    VwFilter.SetR(K_R);
-
-    VxPid.kp = VKp;
-    VxPid.ki = 0.0f;
-    VxPid.kd = 0.0f;
-    VxPid.maxOut = 15000;
-    VxPid.maxIOut = 3;
-
-    VyPid.kp = VKp;
-    VyPid.ki = 0.0f;
-    VyPid.kd = 0.0f;
-    VyPid.maxOut = 15000;
-    VyPid.maxIOut = 3;
-
-    VwPid.kp = 50.0f;
-    VwPid.ki = 0.0f;
-    VwPid.kd = 0.0f;
-    VwPid.maxOut = 15000;
-    VwPid.maxIOut = 3;  
 }
 
 void ChassisController::Run()
@@ -203,7 +162,8 @@ void ChassisController::HandleInput()
         uart_received = false;
     }
 
-    if (!uart_received){
+    if (!uart_received)
+    {
         err_count ++;
     }
 	else
