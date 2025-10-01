@@ -8,6 +8,8 @@ class SteeringGear
 {
 public:
     void Init();
+		void Stop();
+		void Start();
     void SetAngle(int angle, int number);
 
     static SteeringGear *Instance()

@@ -20,6 +20,28 @@ void SteeringGear::Init()
    PWM_Start(&htim8, TIM_CHANNEL_3);
 }
 
+void SteeringGear::Start()
+{
+	 PWM_Start(&htim1, TIM_CHANNEL_1);
+   PWM_Start(&htim1, TIM_CHANNEL_2);
+   PWM_Start(&htim1, TIM_CHANNEL_3);
+   PWM_Start(&htim1, TIM_CHANNEL_4);
+   PWM_Start(&htim8, TIM_CHANNEL_1);
+   PWM_Start(&htim8, TIM_CHANNEL_2);
+   PWM_Start(&htim8, TIM_CHANNEL_3);
+}
+
+void SteeringGear::Stop()
+{
+	 PWM_Stop(&htim1, TIM_CHANNEL_1);
+   PWM_Stop(&htim1, TIM_CHANNEL_2);
+   PWM_Stop(&htim1, TIM_CHANNEL_3);
+   PWM_Stop(&htim1, TIM_CHANNEL_4);
+   PWM_Stop(&htim8, TIM_CHANNEL_1);
+   PWM_Stop(&htim8, TIM_CHANNEL_2);
+   PWM_Stop(&htim8, TIM_CHANNEL_3);
+}
+
 /**
  * @brief 设置舵机角度
  * @param angle是舵机目标角度，限幅在0~180之间

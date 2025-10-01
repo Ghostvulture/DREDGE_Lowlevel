@@ -118,14 +118,21 @@ static uint32_t transmit_count = 0;
 static uint32_t err_count = 0;
 void ChassisController::HandleInput()
 {
+//		R_Front.speedPid.kp = 1000.0f;
+//		R_Front.speedPid.ki = 2.0f;
+//		R_Rear.speedPid.kp = 1000.0f;
+//		R_Rear.speedPid.ki = 2.0f;
+	
 		transmit_count += 1;
 		
-		if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || err_count >= 10){
+		if (MaixComm::Instance()->MaixCommRx.data.header != 0xA5 || err_count >= 100){
 			Vx = 0;
 			Vy = 0;
 			Vw = 0;
+			SteeringGear::Instance()->Stop();
 		}
 		else{
+			SteeringGear::Instance()->Start();
 			Vx = (MaixComm::Instance()->MaixCommRx.data.Vx/255.0f)*6 - 3.0f; // 将速度转换为 m/s
 			Vy = (MaixComm::Instance()->MaixCommRx.data.Vy/255.0f)*6 - 3.0f; // 将速度转换为 m/s
 			Vw = (MaixComm::Instance()->MaixCommRx.data.Vw/255.0f)*6 - 3.0f; // 将速度转换为 rad/s
@@ -145,12 +152,12 @@ void ChassisController::HandleInput()
     Vw = VwFilter.Update(Vw);
 
     //设置舵机角度
-    float M1 = (MaixComm::Instance()->MaixCommRx.data.M1/255.0f)*180; //将角度转换为0~180°之间
-    float M2 = (MaixComm::Instance()->MaixCommRx.data.M2/255.0f)*180;
-    float M3 = (MaixComm::Instance()->MaixCommRx.data.M3/255.0f)*180;
-    float M4 = (MaixComm::Instance()->MaixCommRx.data.M4/255.0f)*180;
-    float M5 = (MaixComm::Instance()->MaixCommRx.data.M5/255.0f)*180;
-    float M6 = (MaixComm::Instance()->MaixCommRx.data.M6/255.0f)*180;
+    float M1 = ((float)MaixComm::Instance()->MaixCommRx.data.M1/255.0f)*180; //将角度转换为0~180°之间
+    float M2 = ((float)MaixComm::Instance()->MaixCommRx.data.M2/255.0f)*180;
+    float M3 = ((float)MaixComm::Instance()->MaixCommRx.data.M3/255.0f)*180;
+    float M4 = ((float)MaixComm::Instance()->MaixCommRx.data.M4/255.0f)*180;
+    float M5 = ((float)MaixComm::Instance()->MaixCommRx.data.M5/255.0f)*180;
+    float M6 = ((float)MaixComm::Instance()->MaixCommRx.data.M6/255.0f)*180;
     SteeringGear::Instance()->SetAngle(M1, 1);
     SteeringGear::Instance()->SetAngle(M2, 2);
     SteeringGear::Instance()->SetAngle(M3, 3);
